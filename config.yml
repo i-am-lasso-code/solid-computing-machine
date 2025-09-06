@@ -116,6 +116,7 @@ opening_books:
   books:
     standard_white:
       selection: best_move 
+      allow_repetitions: true   
      # max_depth: 80
       names:
       #  - ai 
@@ -129,6 +130,7 @@ opening_books:
         - noob
     standard_black:
       selection: best_move 
+      allow_repetitions: true   
      # max depth : 45 
       names:
         - niki
@@ -139,12 +141,14 @@ opening_books:
        # - optimus4
     standard_human: 
       selection: best_move 
+      allow_repetitions: true   
       names: 
         - gm
         - noob
         - Titans
     standard_black_tournament:
       selection: best_move
+      allow_repetitions: true   
       names:
         - drawing
         - niki 
@@ -153,6 +157,7 @@ opening_books:
         - Opimus3.1
     standard_white_tournament:
       selection: best_move
+      allow_repetitions: true   
       names: 
         - drawingforwhite
         - niki
@@ -160,29 +165,34 @@ opening_books:
         - Opimus3.1
     0.5+0_black:
       selection: best_move
+      allow_repetitions: true   
       names: 
         - winwhite
         - niki
         - Opimus3.1
     antichess:
       selection: best_move
+      allow_repetitions: true   
       names: 
         - anti
     horde_white:
       selection: best_move
+      allow_repetitions: true   
       names: 
         - horde
     horde_black:
       selection: best_move
+      allow_repetitions: true   
       names:
         - fghhorde
 online_moves:
   opening_explorer:
-    enabled: true
+    enabled: false
     priority: 300
  #   player: Username
     only_without_book: false
     use_for_variants: true
+    allow_repetitions: true              # Whether the cloud can create repetitions on the board. Can lead to unintentional draws.     
     min_time: 20
     timeout: 5
     min_games: 10
@@ -199,6 +209,8 @@ online_moves:
     min_time: 10
     timeout: 3
     use_for_variants: false
+    allow_repetitions: true              # Whether the cloud can create repetitions on the board. Can lead to unintentional draws.
+    trust_eval: true
     # max_depth: 30
 
   chessdb:
@@ -209,6 +221,8 @@ online_moves:
     min_time: 20
     timeout: 3
     selection: "optimal"
+    allow_repetitions: true              # Whether the cloud can create repetitions on the board. Can lead to unintentional draws.
+    trust_eval: true      
     # max_depth: 30
 
   online_egtb:
