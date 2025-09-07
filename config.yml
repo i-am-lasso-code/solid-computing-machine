@@ -190,6 +190,7 @@ opening_books:
       allow_repetitions: true 
       names:
         - chess960 
+        - 960
 
 online_moves:
   opening_explorer:
@@ -352,4 +353,5 @@ books:
   drawingforwhite: "./engines/drawingforwhite.bin"
   badbot: "./engines/badwhite.bin"
   chess960: "./engines/chess960.bin"
+  960: "./engines/randomchess.bin"
 
