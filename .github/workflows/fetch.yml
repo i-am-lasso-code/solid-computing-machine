@@ -30,6 +30,8 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git merge origin/main
           git add engines/randomchess.bin
           git commit -m "Fetch latest randomchess.bin from Tasty-MAGGI" || echo "No changes to commit"
           git push
