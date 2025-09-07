@@ -1,4 +1,4 @@
-name: Fetch chess960.bin without curl
+name: Fetch randomchess.bin without curl
 
 on:
   workflow_dispatch: # Run manually
@@ -17,19 +17,19 @@ jobs:
           repository: MaggiCoder16/Tasty-MAGGI
           path: tasty-maggi
 
-      - name: Copy chess960.bin
+      - name: Copy randomchess.bin
         run: |
           mkdir -p engines
-          cp tasty-maggi/engines/chess960.bin engines/chess960.bin
+          cp tasty-maggi/engines/chess960.bin engines/randomchess.bin
 
       - name: Show file size in KB
         run: |
-          du -k engines/chess960.bin
+          du -k engines/randomchess.bin
 
       - name: Commit and push changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add engines/chess960.bin
-          git commit -m "Fetch latest chess960.bin from Tasty-MAGGI" || echo "No changes to commit"
+          git add engines/randomchess.bin
+          git commit -m "Fetch latest randomchess.bin from Tasty-MAGGI" || echo "No changes to commit"
           git push
