@@ -350,6 +350,6 @@ books:
   fghhorde: "./engines/horde_book_black.bin"
   drawing: "./engines/drawing.bin"
   drawingforwhite: "./engines/drawingforwhite.bin"
-  badbot: "./engines/badwhite.bin"\
+  badbot: "./engines/badwhite.bin"
   chess960: "./engines/chess960.bin"
 
