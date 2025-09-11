@@ -50,7 +50,7 @@ engines:
     #  nodes: 5000000
   standard_human:
     dir: "./engines"
-    name: "stockfish 7 x86 bmi2"
+    name: "stockfish-7-x86-bmi2"
     ponder: false
     silence_stderr: false
     move_overhead_multiplier: 6.9
