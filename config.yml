@@ -170,7 +170,7 @@ opening_books:
         - winwhite
         - niki
         - Opimus3.1
-    antichess:
+    antichess_black:
       selection: best_move
       allow_repetitions: true   
       names: 
@@ -191,7 +191,12 @@ opening_books:
       names:
         - chess960 
         - 960
-
+    antichess_white:
+      selection: best_move
+      allow_repetitions: false
+      names:
+        - realanti
+        - anti
 online_moves:
   opening_explorer:
     enabled: false
@@ -354,4 +359,5 @@ books:
   badbot: "./engines/badwhite.bin"
   chess960: "./engines/chess960.bin"
   960: "./engines/randomchess.bin"
+  realanti: "./engines/anti.bin"
 
