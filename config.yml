@@ -48,18 +48,7 @@ engines:
      # time: 20.0
       #depth: 50
     #  nodes: 5000000
-  standard_human:
-    dir: "./engines"
-    name: "stockfish-7-x64-bmi2"
-    ponder: false
-    silence_stderr: false
-    move_overhead_multiplier: 6.9
-    uci_options:
-      Threads: 4
-      Hash: 269
-      Move Overhead: 125
-      EvalFile: "nn-46832cfbead3.nnue"
-    limits:
+  
   bullet:
     dir: "./engines"
     name: "stockfish-ubuntu-x86-64-bmi2"
