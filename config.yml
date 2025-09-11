@@ -58,6 +58,7 @@ engines:
       Threads: 4
       Hash: 269
       Move Overhead: 125
+    limits:
 
   bullet:
     dir: "./engines"
