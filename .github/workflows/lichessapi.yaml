@@ -1,0 +1,14 @@
+name: Follow IGotNoName on Lichess
+
+on:
+  workflow_dispatch:  # run manually from the Actions tab
+
+jobs:
+  follow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Follow IGotNoName
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.LICHESS_KEY }}" \
+            https://lichess.org/api/rel/follow/IGotNoName
