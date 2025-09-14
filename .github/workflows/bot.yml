@@ -43,7 +43,7 @@ jobs:
       - name: Run Bot
         run: |
           echo "Starting bot..."
-          python3 -u user_interface.py "tournament Pa8A9J0C royalracer-fans" "create 2 torombot 1+0 true antichess" "tournament GEBjcDra" &
+          python3 -u user_interface.py "tournament Kqul9pAe" "create 2 torombot 1+0 true horde" &
           PID=$!
           # Auto-exit before GitHub 6h limit
           ( sleep 20700 && echo "Time up. Killing bot..." && kill -SIGTERM $PID ) &
@@ -55,6 +55,7 @@ jobs:
         run: gh workflow run "Run bot"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
 
 
