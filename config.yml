@@ -326,10 +326,10 @@ matchmaking:
     
 
 messages:
-  greeting: "Konnichiwa guzaimase! ❤️‍🔥Using help of {engine} Type !help to glimpse my arsenal. Best of luck"
-  goodbye: "GGs, ezz. May we meet again, may I win again 💶 {me} signing off!"
-  greeting_spectators: "ITZ {engine} in {me} competing for more depth with @{opponent} Type !help for a list of commands."
-  goodbye_spectators: "SIMULATION TERMINATED@{opponent}.May our paths cross again!?Thanks For watching, {me} signing off!"
+  greeting: "Xin Chào! Chúc Bạn Chơi Vui Vẻ!"
+  goodbye: "Good bye! Cảm ơn đã chơi!"
+  greeting_spectators: "Hello my spectators! My strength is best!"
+  goodbye_spectators: "Nice game! I will train and beat you many time!"
 
 whitelist:
   - Supratsa
