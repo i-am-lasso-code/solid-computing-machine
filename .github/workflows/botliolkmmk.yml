@@ -15,7 +15,7 @@ jobs:
 
       - name: Download exact BotLi versions of selected files
         run: |
-          FILES=("lichess_game.py" "botli_dataclasses.py" "configs.py" "config.py")
+          FILES=("lichess_game.py" "botli_dataclasses.py" "configs.py" "config.py" "chatter.py")
           for FILE in "${FILES[@]}"; do
             curl -sSL "https://raw.githubusercontent.com/Torom/BotLi/main/$FILE" -o "$FILE"
           done
