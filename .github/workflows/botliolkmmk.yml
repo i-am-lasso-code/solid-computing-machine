@@ -11,7 +11,7 @@ jobs:
       - name: Checkout your repo
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT_TOKEN }}
 
       - name: Download exact BotLi versions of selected files
         run: |
