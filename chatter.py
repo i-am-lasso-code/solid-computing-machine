@@ -9,6 +9,22 @@ from botli_dataclasses import Chat_Message, Game_Information
 from config import Config
 from lichess_game import Lichess_Game
 
+COMMANDS = {
+    'cpu': 'Shows information about the bot\'s CPU (processor, cores, threads, frequency).',
+    'draw': 'Explains the bot\'s draw offering/accepting policy based on evaluation and game length.',
+    'eval': 'Shows the latest position evaluation.',
+    'motor': 'Displays the name of the chess motor currently being used.',
+    'name': 'Shows the bot\'s name and motor information.',
+    'ping': 'Tests the network connection latency to Lichess servers.',
+    'printeval': 'Enables automatic printing of evaluations after each move (use !quiet to stop).',
+    'quiet': 'Stops automatic evaluation printing (use after !printeval).',
+    'ram': 'Displays the amount of system memory (RAM).',
+    'takeback': 'Shows how many takebacks are allowed and how many the opponent has used.'
+}
+SPECTATOR_COMMANDS = {
+    'pv': 'Shows the principal variation (best line of play) from the latest position.'
+}
+
 
 class Chatter:
     def __init__(self,
@@ -33,7 +49,7 @@ class Chatter:
         self.spectator_goodbye = self._format_message(config.messages.goodbye_spectators)
         self.print_eval_rooms: set[str] = set()
 
-    async def handle_chat_message(self, chatLine_Event: dict, takeback_count: int = 0, max_takebacks: int = 0) -> None:
+    async def handle_chat_message(self, chatLine_Event: dict, takeback_count: int, max_takebacks: int) -> None:
         chat_message = Chat_Message.from_chatLine_event(chatLine_Event)
 
         if chat_message.username == 'lichess':
@@ -85,14 +101,6 @@ class Chatter:
         match chat_message.text[1:].lower():
             case 'cpu':
                 await self.api.send_chat_message(self.game_info.id_, chat_message.room, self.cpu_message)
-            case 'roast':
-                await self.api.send_chat_message(self.game_info.id_,
-                                                 chat_message.room,
-                                                 'It’s impressive how you manage to say so much without actually adding anything of value')
-            case 'creator':
-                await self.api.send_chat_message(self.game_info.id_,
-                                                 chat_message.room,
-                                                 'I was made by @Supratsa')
             case 'draw':
                 await self.api.send_chat_message(self.game_info.id_, chat_message.room, self.draw_message)
             case 'eval':
@@ -101,12 +109,12 @@ class Chatter:
                 await self.api.send_chat_message(self.game_info.id_, chat_message.room, self.lichess_game.engine.name)
             case 'name':
                 await self.api.send_chat_message(self.game_info.id_, chat_message.room, self.name_message)
-            case 'getping':
+            case 'ping':
                 if not self.game_info.increment_ms and self.lichess_game.own_time < 10.0:
                     return
+
                 ping = await self.api.ping() * 1000.0
                 await self.api.send_chat_message(self.game_info.id_, chat_message.room, f'Ping: {ping:.1f} ms')
-
             case 'printeval':
                 if not self.game_info.increment_ms and self.game_info.initial_time_ms < 180_000:
                     await self._send_last_message(chat_message.room)
@@ -132,28 +140,23 @@ class Chatter:
                 await self.api.send_chat_message(self.game_info.id_, chat_message.room, message)
             case 'ram':
                 await self.api.send_chat_message(self.game_info.id_, chat_message.room, self.ram_message)
-            case 'hint':
-                if chat_message.room != 'player':
-                    return
-                if self.game_info.rated:
-                    await self.api.send_chat_message(self.game_info.id_, chat_message.room,
-                                                     'Hints are only available in casual games.')
-                    return
-                hint_message = self._get_hint_message()
-                await self.api.send_chat_message(self.game_info.id_, chat_message.room, hint_message)
             case 'takeback':
                 await self._send_takeback_message(chat_message.room, takeback_count, max_takebacks)
-            case 'assist' | 'commands':
-                if chat_message.room == 'player':
-                    message = 'Supported commands: !cpu, !draw, !eval, !motor, !name, !roast, !designer, !printeval, !ram, !hint, !takeback, !getping'
+            case command if command.startswith('help'):
+                commands = COMMANDS if chat_message.room == 'player' else COMMANDS | SPECTATOR_COMMANDS
+                words = chat_message.text.split()
+                if len(words) == 1:
+                    message = f'Commands: !{", !".join(commands)}. Type !help <command> for more information.'
+                    await self.api.send_chat_message(self.game_info.id_, chat_message.room, message)
+                    return
+
+                command = words[1].lstrip('!').lower()
+                if command in commands:
+                    message = f'!{command}: {commands[command]}'
                 else:
-                    message = 'Supported commands: !cpu, !draw, !eval, !motor, !name, !roast, !designer, !printeval, !ram, !assist, !takeback, !getping'
+                    message = f'Unknown command: "!{command}". Type !help for a list of available commands.'
 
                 await self.api.send_chat_message(self.game_info.id_, chat_message.room, message)
-            case _:
-                await self.api.send_chat_message(self.game_info.id_,
-                                                 chat_message.room,
-                                                 'Sorry but that command is not in my list, try !assist for a list of commands.')
 
     async def _send_last_message(self, room: str) -> None:
         last_message = self.lichess_game.last_message.replace('Engine', 'Evaluation')
@@ -196,20 +199,6 @@ class Chatter:
 
         return f'{cpu} {cores}c/{threads}t @ {cpu_freq:.2f}GHz'
 
-    def _get_hint_message(self) -> str:
-        if len(self.lichess_game.last_pv) < 1:
-            return 'No hint available yet.'
-        if self.lichess_game.is_our_turn:
-            board = self.lichess_game.board.copy(stack=1)
-            board.pop()
-        else:
-            board = self.lichess_game.board.copy(stack=False)
-        best_move = self.lichess_game.last_pv[0]
-        if best_move not in board.legal_moves:
-            return 'No hint available for current position.'
-        move_san = board.san(best_move)
-        return f'Hint: {move_san}'
-
     def _get_ram(self) -> str:
         mem_bytes = psutil.virtual_memory().total
         mem_gib = mem_bytes / (1024.**3)
@@ -217,12 +206,17 @@ class Chatter:
         return f'{mem_gib:.1f} GiB'
 
     def _get_draw_message(self, config: Config) -> str:
-        if not config.offer_draw.enabled:
-            return 'This bot will neither accept nor offer draws.'
+        too_low_rating = (config.offer_draw.min_rating is not None and
+                          self.lichess_game.engine.opponent.rating is not None and
+                          self.lichess_game.engine.opponent.rating < config.offer_draw.min_rating)
+        no_draw_against_humans = (not self.lichess_game.engine.opponent.is_engine and
+                                  not config.offer_draw.against_humans)
+        if not config.offer_draw.enabled or too_low_rating or no_draw_against_humans:
+            return f'{self.username} will neither accept nor offer draws.'
 
         max_score = config.offer_draw.score / 100
 
-        return (f'The bot offers draw at move {config.offer_draw.min_game_length} or later '
+        return (f'{self.username} offers draw at move {config.offer_draw.min_game_length} or later '
                 f'if the eval is within +{max_score:.2f} to -{max_score:.2f} for the last '
                 f'{config.offer_draw.consecutive_moves} moves.')
 
@@ -233,8 +227,7 @@ class Chatter:
         if not message:
             return
 
-        opponent_username = self.game_info.black_name if self.lichess_game.is_white else self.game_info.white_name
-        mapping = defaultdict(str, {'opponent': opponent_username, 'me': self.username,
+        mapping = defaultdict(str, {'opponent': self.opponent_username, 'me': self.username,
                                     'engine': self.lichess_game.engine.name, 'cpu': self.cpu_message,
                                     'ram': self.ram_message})
         return message.format_map(mapping)
