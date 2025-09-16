@@ -9,80 +9,40 @@ on:
       - "user_interface.py"
 
 jobs:
-  lichess-bot:
-    name: Run ghost_hunter2998
+  build:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Python Dependency Installation
-        uses: py-actions/py-dependency-install@v4.0.0
-      - name: Injection For my Repo
-        run: sed -i "s/TokenTimeIsBackBuddyss/${{ secrets.TOKEN }}/g" config.yml
-      - name: Stockfish
-        run: chmod +x ./engines/stockfish-ubuntu-x86-64-bmi2 ./engines/fairy-stockfish_x86-64-bmi2 ./engines/stockfish-7-x64-bmi2
-      - name: Running bot
-        run: |
-          python -u user_interface.py "matchmaking" "join dark-on-teams" "tournament Kqul9pAe" "tournament lrFVSZ51 real-humans" &
-          PID=$!
-          # Auto-exit before GitHub 6h limit
-          ( sleep 20700 && echo "Time up. Killing bot..." && kill -SIGTERM $PID ) &
-          wait $PID
-          echo "Bot ended cleanly."
-        
+    timeout-minutes: 355  # just under 6h limit
 
-  bullet-bot:
-    name: Run Viet-Test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Python Dependency Installation
-        uses: py-actions/py-dependency-install@v4.0.0
-      - name: Injection For my Repo
-        run: sed -i "s/TokenTimeIsBackBuddyss/${{ secrets.TOKEN1 }}/g" config.yml
-      - name: Stockfish
-        run: chmod +x ./engines/stockfish-ubuntu-x86-64-bmi2 ./engines/fairy-stockfish_x86-64-bmi2 ./engines/stockfish-7-x64-bmi2
-      - name: Running bot
-        run: |
-          python -u user_interface.py "matchmaking" "join dark-on-teams" "tournament Kqul9pAe" "tournament lrFVSZ51 real-humans" &
-          PID=$!
-          # Auto-exit before GitHub 6h limit
-          ( sleep 20700 && echo "Time up. Killing bot..." && kill -SIGTERM $PID ) &
-          wait $PID
-          echo "Bot ended cleanly."
+    concurrency:
+      group: bot-run
+      cancel-in-progress: false  # keep live jobs safe
 
-  main-bot:
-    name: Run Fair_Bot
-    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Python Dependency Installation
-        uses: py-actions/py-dependency-install@v4.0.0
-      - name: Injection For my Repo
-        run: sed -i "s/TokenTimeIsBackBuddyss/${{ secrets.TOKEN3 }}/g" config.yml
-      - name: Stockfish
-        run: chmod +x ./engines/stockfish-ubuntu-x86-64-bmi2 ./engines/fairy-stockfish_x86-64-bmi2 ./engines/stockfish-7-x64-bmi2
-      - name: Running bot
-        run: |
-          python -u user_interface.py "matchmaking" "join dark-on-teams" "tournament Kqul9pAe" "tournament lrFVSZ51 real-humans" &
-          PID=$!
-          # Auto-exit before GitHub 6h limit
-          ( sleep 20700 && echo "Time up. Killing bot..." && kill -SIGTERM $PID ) &
-          wait $PID
-          echo "Bot ended cleanly."
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-  alt-bot:
-    name: Run pineapplemask
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Python Dependency Installation
-        uses: py-actions/py-dependency-install@v4.0.0
-      - name: Injection For my Repo
-        run: sed -i "s/TokenTimeIsBackBuddyss/${{ secrets.TOKEN2 }}/g" config.yml
-      - name: Stockfish
-        run: chmod +x ./engines/stockfish-ubuntu-x86-64-bmi2 ./engines/fairy-stockfish_x86-64-bmi2 ./engines/stockfish-7-x64-bmi2
-      - name: Running bot
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
+
+      - name: Cache pip downloads
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies & prepare
         run: |
+          pip install --no-cache-dir --prefer-binary -r requirements.txt
+          sed -i "s/TokenTimeIsBackBuddyss/${{ secrets.LICHESS_KEY }}/g" config.yml
+          chmod +x ./engines/stockfish-ubuntu-x86-64-bmi2 ./engines/fairy-stockfish_x86-64-bmi2 ./engines/stockfish-7-x64-bmi2
+
+      - name: Run Bot
+        run: |
+          echo "Starting bot..."
           python -u user_interface.py "matchmaking" "join dark-on-teams" "tournament Kqul9pAe" "tournament lrFVSZ51 real-humans" &
           PID=$!
           # Auto-exit before GitHub 6h limit
@@ -94,7 +54,8 @@ jobs:
         if: always()
         run: gh workflow run bot.yml
         env:
-          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
 
 
