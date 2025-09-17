@@ -9,40 +9,39 @@ on:
       - "user_interface.py"
 
 jobs:
-  build:
+  main-bot:
+    name: Run chry
     runs-on: ubuntu-latest
-    timeout-minutes: 355  # just under 6h limit
-
-    concurrency:
-      group: bot-run
-      cancel-in-progress: false  # keep live jobs safe
-
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.13'
-
-      - name: Cache pip downloads
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-
-      - name: Install dependencies & prepare
+      - uses: actions/checkout@v3
+      - name: Python Dependency Installation
+        uses: py-actions/py-dependency-install@v4.0.0
+      - name: Injection For my Repo
+        run: sed -i "s/TokenTimeIsBackBuddyss/${{ secrets.LICHESS_KEY }}/g" config.yml
+      - name: Stockfish
+        run: chmod +x ./engines/stockfish-ubuntu-x86-64-bmi2 ./engines/fairy-stockfish_x86-64-bmi2 ./engines/stockfish-7-x64-bmi2
+      - name: Running bot
         run: |
-          pip install --no-cache-dir --prefer-binary -r requirements.txt
-          sed -i "s/TokenTimeIsBackBuddyss/${{ secrets.LICHESS_KEY }}/g" config.yml
-          chmod +x ./engines/stockfish-ubuntu-x86-64-bmi2 ./engines/fairy-stockfish_x86-64-bmi2 ./engines/stockfish-7-x64-bmi2
+          python -u user_interface.py "matchmaking" "join dark-on-teams" "tournament Kqul9pAe" "tournament lrFVSZ51 real-humans" &
+          PID=$!
+          # Auto-exit before GitHub 6h limit
+          ( sleep 20700 && echo "Time up. Killing bot..." && kill -SIGTERM $PID ) &
+          wait $PID
+          echo "Bot ended cleanly."
 
-      - name: Run Bot
+  alt-bot:
+    name: Run strain
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Python Dependency Installation
+        uses: py-actions/py-dependency-install@v4.0.0
+      - name: Injection For my Repo
+        run: sed -i "s/TokenTimeIsBackBuddyss/${{ secrets.TOKEN2 }}/g" config.yml
+      - name: Stockfish
+        run: chmod +x ./engines/stockfish-ubuntu-x86-64-bmi2 ./engines/fairy-stockfish_x86-64-bmi2 ./engines/stockfish-7-x64-bmi2
+      - name: Running bot
         run: |
-          echo "Starting bot..."
           python -u user_interface.py "matchmaking" "join dark-on-teams" "tournament Kqul9pAe" "tournament lrFVSZ51 real-humans" &
           PID=$!
           # Auto-exit before GitHub 6h limit
@@ -55,10 +54,3 @@ jobs:
         run: gh workflow run bot.yml
         env:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
-
-
-
-
-
-
-
