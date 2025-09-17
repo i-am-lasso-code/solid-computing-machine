@@ -1,4 +1,4 @@
-name: Run bot
+name: bot
 
 on:
   workflow_dispatch:
@@ -52,7 +52,7 @@ jobs:
         
       - name: 🔁 Self-Restart
         if: always()
-        run: gh workflow run bot.yml
+        run: gh workflow run strain.yml
         env:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
 
