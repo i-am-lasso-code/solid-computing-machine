@@ -13,7 +13,7 @@ jobs:
     name: Run chry
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       - name: Python Dependency Installation
         uses: py-actions/py-dependency-install@v4.0.0
       - name: Injection For my Repo
